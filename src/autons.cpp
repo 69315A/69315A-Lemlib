@@ -15,34 +15,36 @@
 // moveToPose --> majority lateral motion, ending with swing to certain heading
     // SLOWER than moveToPoint
 
+
+    
+// Color Sensor Values
+const int red = 15;
+const int blue = 210;
+
 void turnTest() {
 
-    nextState();
-    pros::delay(1000);
+    // Spit out blue
+    targetHue = blue;
 
-    lbTaskEnabled = false;
-    lb.move_relative(1500, 127);
-    pros::delay(1000);
-    lbTaskEnabled = true;
-
-    nextState();
-    
-    pros::delay(1000);
+    intake.move_velocity(12000);
     
 }
 
 void skills(){
 
+    // Spit out blue
+    targetHue = blue;
     extendMogo();
 
     // --------- 1ST CORNER --------- //
 
+    chassis.setPose(-60, 0, 90);
+
     // Score preload on alliance stake
     intake.move_voltage(12000);
-    pros::delay(200);
+    pros::delay(500);
 
     // Move to first mogo
-    chassis.setPose(-60, 0, 90);
     chassis.moveToPoint(-47, 0, 2000);
     chassis.turnToHeading(0, 500);
     chassis.moveToPoint(-47.382, -23.65, 2000, {.forwards = false});
@@ -64,7 +66,7 @@ void skills(){
     pros::delay(300);
 
     // Move to center line & set LB loading position
-    chassis.moveToPoint(1.3, -38, 2000, {.forwards = false});
+    chassis.moveToPoint(1.2, -38, 2000, {.forwards = false});                                     // changed
     nextState(); // Loading state
 
     // Turn towards wall stake & set LB ready position
@@ -77,14 +79,14 @@ void skills(){
     intake.move_voltage(12000);
 
     // Move to wall stake and intake 3rd ring
-    chassis.moveToPoint(1.3, -61, 2000, {.maxSpeed = 80});
+    chassis.moveToPoint(1.2, -61, 2000, {.maxSpeed = 80});                                           // changed
     pros::delay(800);
 
     nextState(); // Scored state
     pros::delay(100);
     chassis.turnToHeading(185, 500);
 
-    chassis.moveToPoint(-1.3, -47, 2000, {.forwards = false});
+    chassis.moveToPoint(1, -47, 2000, {.forwards = false});
     chassis.turnToHeading(270, 1000);
     nextState(); // Resting state
 
@@ -110,11 +112,10 @@ void skills(){
     // --------- 2ND CORNER --------- //
 
     // Move to ring
-    intake.move_voltage(12000);
     chassis.moveToPoint(31.58, -44.676, 1500, {.maxSpeed = 127, .earlyExitRange = 1});
     chassis.moveToPose(45, -44.7, 90, 1000, {.maxSpeed = 80});
 
-    nextState(); // Loading state
+    // nextState(); // Loading state
 
     // Move to and clamp mogo
     chassis.turnToHeading(210, 500);
@@ -136,6 +137,7 @@ void skills(){
 
     // Back up into corner
     chassis.moveToPoint(58.396, -59.191, 1000, {.forwards = false});
+    intake.move_velocity(12000);
     
     // Turn to 3rd mogo
     chassis.moveToPoint(48.441, -36.33, 2000);
@@ -144,32 +146,10 @@ void skills(){
     extendMogo();
 
     // Move to 3rd mogo
-    chassis.moveToPoint(48.441, 1, 2000, {.forwards = false, .maxSpeed = 80});      // changed
+    chassis.moveToPoint(48.441, 1, 2000, {.forwards = false, .maxSpeed = 80}); 
     chassis.waitUntilDone();
     retractMogo();
     pros::delay(200);
-
-    // Turn to alliance stake
-    chassis.turnToHeading(90, 500);
-    chassis.moveToPoint(56, 1, 1000);                                                     // changed
-    intake.move_voltage(0);
-    intake.move_relative(-150, 127);
-
-    // Score alliance stake
-    lbTaskEnabled = false;
-    intake.move_voltage(-12000);
-    lb.move_relative(1750, 127);
-    pros::delay(1600);
-    lbTaskEnabled = true;
-
-    // Back up
-    chassis.moveToPoint(48.441, 0, 1000, {.forwards = false});
-    chassis.waitUntilDone();
-
-    nextState(); // Ready state
-    nextState(); // Scored state
-    nextState(); // Resting state
-    intake.move_voltage(12000);
 
     // --------- 3RD CORNER --------- //
 
@@ -227,12 +207,13 @@ void skills(){
     nextState(); // Loading state
 
     // Move to wall stake
-    chassis.moveToPoint(0, 43.3, 2000);
+    chassis.moveToPoint(1, 43.3, 2000);                                                     // changed                               
     intake.move_voltage(12000);
     chassis.waitUntilDone();
 
     // Turn to wall stake
     chassis.turnToHeading(0, 600);
+    pros::delay(500);
 
     // Set LB to ready
     intake.move_voltage(0);
@@ -242,14 +223,14 @@ void skills(){
     intake.move_voltage(12000);
 
     // Move to wall stake, score, and intake 1st ring
-    chassis.moveToPoint(0, 61.5, 1000, {.maxSpeed = 80});
+    chassis.moveToPoint(1, 61.5, 1000, {.maxSpeed = 80});                           // changed
     chassis.waitUntilDone();
 
     nextState(); // Scored state
     pros::delay(800);
 
     // Back up
-    chassis.moveToPoint(0, 46.985, 1000, {.forwards = false});
+    chassis.moveToPoint(1, 46.985, 1000, {.forwards = false});                          // changed
     chassis.waitUntilDone();
     nextState();
 
@@ -282,7 +263,8 @@ void skills(){
     pros::delay(1000);
 
     // Turn to corner
-    chassis.turnToHeading(240, 500);
+    // chassis.turnToHeading(240, 500);
+    chassis.turnToHeading(260, 500);
     chassis.waitUntilDone();
     intake.move_velocity(-12000);
     extendMogo();
@@ -292,12 +274,38 @@ void skills(){
     chassis.waitUntilDone();
     retractMogo();
 
-    chassis.moveToPoint(53.151, 65.713, 1300, {.forwards = false});
+    chassis.moveToPoint(56.816, 62.421, 1300, {.forwards = false});
+    // chassis.moveToPoint(53.151, 65.713, 1300, {.forwards = false});
+    // chassis.moveToPoint(37.97, 55.595, 1000);
     chassis.moveToPoint(37.97, 55.595, 1000);
+
+    // --------- HANG --------- //
+
+    // // Move in front of ladder
+    // chassis.moveToPoint(21.383, 20.234, 2000, {.earlyExitRange = 1});
+    // intake.move_velocity(0);
+
+    // // Turn backwrds
+    // chassis.turnToHeading(40, 500);
+    // chassis.waitUntilDone();
+    // nextState(); // loading state
+    // nextState(); // ready state
+    // nextState(); // scored state
+
+    // // Hang
+    // chassis.moveToPoint(9.537, 8.39, 2000, {.forwards = false, .maxSpeed = 20});
+    // // pros::delay(400);
+    // chassis.moveToPoint(17.577, 16.428, 1000, {.maxSpeed = 40});
+    // // chassis.waitUntilDone();
+
+    // hang.retract();
+
 }
 
 void R_P_ringrush(){
 
+    // Spit out blue
+    targetHue = blue;
     extendMogo();
     doinkerR.extend();
     pros::delay(200);
@@ -370,6 +378,9 @@ void R_P_ringrush(){
 // Working
 void B_P_ringrush(){
 
+    // Spit out red
+    targetHue = red;
+
     extendMogo();
     doinkerL.extend();
     pros::delay(200);
@@ -385,7 +396,7 @@ void B_P_ringrush(){
     chassis.moveToPoint(48, -13, 500);
     
     // Turn to mogo
-    chassis.turnToHeading(60, 500);
+    chassis.turnToHeading(65, 500);
     chassis.moveToPoint(24.058, -23.397, 1500, {.forwards = false});
     pros::delay(200);
     intake.move_voltage(0);
@@ -396,43 +407,65 @@ void B_P_ringrush(){
     pros::delay(200);
     intake.move_voltage(12000);
 
-    // Move to 2nd ring 
-    chassis.turnToHeading(-50, 500);
-    chassis.moveToPoint(10, -3, 1000);                  // changed
-    pros::delay(300);
-    intake.move_voltage(0);
-    pros::delay(500);
-    intake.move_voltage(-12000);
+    // // Move to 2nd ring 
+    // chassis.turnToHeading(-50, 500);
+    // chassis.moveToPoint(10, -3, 1000);            
+    // pros::delay(300);
+    // intake.move_voltage(0);
+    // pros::delay(500);
+    // intake.move_voltage(-12000);
 
-    chassis.moveToPoint(15, -6, 500, {.forwards = false});      // changed
+    // chassis.moveToPoint(15, -6, 500, {.forwards = false});     
 
-    chassis.turnToHeading(310, 500);                    // changed
+    // chassis.turnToHeading(310, 500);       
+    // chassis.waitUntilDone();
+
+    // doinkerL.extend();
+    // pros::delay(400);
+
+    // // Move to 3rd ring
+    // chassis.turnToHeading(285, 500);            
+    // chassis.moveToPoint(6.25, -5, 500);
+    // chassis.waitUntilDone();
+
+    // doinkerR.extend();
+    // pros::delay(400);
+
+    // Move to 2nd ring
+    chassis.turnToHeading(330, 500);                                    //change
+    pros::delay(500);                               // change intake
+    chassis.moveToPoint(11.5, -9.5, 1500);                                                       // change
+    intake.move_velocity(0);
     chassis.waitUntilDone();
 
+    // DOinker 2nd ring
     doinkerL.extend();
     pros::delay(400);
 
-    // Move to 3rd ring
-    chassis.turnToHeading(285, 500);                        // changed
-    chassis.moveToPoint(6.25, -5, 500);
-    chassis.waitUntilDone();
-
-    doinkerR.extend();
-    pros::delay(400);
-
     // Move back
-    chassis.moveToPoint(37.5, -49, 3000, {.forwards = false});
+    chassis.moveToPoint(38.708, -44.674, 3000, {.forwards = false, .maxSpeed = 100});
     chassis.waitUntilDone();
-    doinkerR.retract();
     doinkerL.retract();
 
     // Swing to intake 2, 3, 4th ring
     intake.move_voltage(12000);
-    chassis.turnToHeading(290, 500);
-    chassis.moveToPoint(27.5, -45.5, 1000, {.earlyExitRange = 1});
 
-    chassis.moveToPoint(36.2, -34.7, 1000, {.earlyExitRange = 1});
-    chassis.moveToPoint(60, -40, 1000);
+    chassis.turnToHeading(250, 600);
+    chassis.moveToPoint(30.038, -48, 1000);
+
+    chassis.turnToHeading(335, 600);
+    chassis.moveToPoint(24.869, -37.337, 1000); 
+
+
+    // chassis.turnToHeading(290, 500);
+    // chassis.moveToPoint(27.5, -45.5, 1000, {.earlyExitRange = 1});
+
+    // chassis.moveToPoint(36.2, -34.7, 1000, {.earlyExitRange = 1});
+
+
+
+    chassis.turnToHeading(90, 600);
+    chassis.moveToPoint(60.216, -37.171, 1000);
     chassis.waitUntilDone();
 
     // Turn and move to corner
@@ -447,6 +480,9 @@ void R_N_ringrush(){
 
 // unfinished
 void B_N_ringrush(){
+
+    // Spit out red
+    targetHue = red;
 
     extendMogo();
     intake.move_voltage(12000);
@@ -484,23 +520,47 @@ void B_N_ringrush(){
 
 void B_N_halfSAWP(){
 
+    // Spit out red
+    targetHue = red;
+
+    intake.move_velocity(0);
     extendMogo();
-    chassis.setPose(51.387, 9.5, 115);
-    nextState(); // Loading state
+    chassis.setPose(54.766, 15.426, 180);
 
-    // Move forward
-    chassis.moveToPoint(58.5, 9, 1000);
+    pros::delay(3000);                                                                      // change
 
-    // Load preload
-    intake.move_voltage(12000); 
-    pros::delay(1500);
-    intake.move_relative(-250, -127);
-    intake.move_voltage(0);
+    // Move to front of alliance stake
+    chassis.moveToPoint(54.766, -2.5, 800);
 
-    // Score alliance stake
-    lbTaskEnabled = false;
-    lb.move_relative(1700, 127);
-    pros::delay(1500);
+    // Turn to alliance stake
+    chassis.turnToHeading(270, 500);
+
+    // Move to alliance stake and score
+    chassis.moveToPoint(62, -2.5, 700, {.forwards = false});
+    chassis.waitUntilDone();
+    intake.move_velocity(12000);
+    pros::delay(800);
+
+    // Move forward and turn to mogo
+    chassis.moveToPoint(54.766, -2.5, 800);
+    chassis.turnToHeading(310, 500);
+
+
+    // nextState(); // Loading state
+
+    // // Move forward
+    // chassis.moveToPoint(58.5, 9, 1000);
+
+    // // Load preload
+    // intake.move_voltage(12000); 
+    // pros::delay(1500);
+    // intake.move_relative(-250, -127);
+    // intake.move_voltage(0);
+
+    // // Score alliance stake
+    // lbTaskEnabled = false;
+    // lb.move_relative(1700, 127);
+    // pros::delay(1500);
     
     // Move to mogo
     chassis.moveToPoint(22.734, 24.017, 2000, {.forwards = false, .maxSpeed = 90});
@@ -508,11 +568,11 @@ void B_N_halfSAWP(){
     chassis.waitUntilDone();
     retractMogo();
     
-    lbTaskEnabled = true;
+    // lbTaskEnabled = true;
 
-    nextState(); // Ready state
-    nextState(); // Scored state
-    nextState(); // Resting state
+    // nextState(); // Ready state
+    // nextState(); // Scored state
+    // nextState(); // Resting state
 
     pros::delay(500);
 
@@ -537,30 +597,50 @@ void B_N_halfSAWP(){
 
     // Turn and move to ladder
     chassis.turnToHeading(180, 500);
-    chassis.moveToPoint(25.14, 8, 2000, {.maxSpeed = 100});
+    chassis.moveToPoint(25.14, 7, 2000, {.maxSpeed = 100});
     chassis.waitUntilDone();
     intake.move_velocity(0);
 }
 
 void R_N_halfSAWP(){
 
+    // Spit out blue
+    targetHue = blue;
+
     extendMogo();
-    chassis.setPose(-51.387, 9.5, 245);
-    nextState(); // Loading state
+    chassis.setPose(-54.766, 15.426, 180);
 
-    // Move forward
-    chassis.moveToPoint(-58.5, 9, 1000);
+    // Move to front of alliance stake
+    chassis.moveToPoint(-54.766, 0, 800);
 
-    // Load preload
-    intake.move_voltage(12000); 
-    pros::delay(1500);
-    intake.move_relative(-250, -127);
-    intake.move_voltage(0);
+    // Turn to alliance stake
+    chassis.turnToHeading(90, 500);
 
-    // Score alliance stake
-    lbTaskEnabled = false;
-    lb.move_relative(1700, 127);
-    pros::delay(1500);
+    // Move to alliance stake and score
+    chassis.moveToPoint(-62, -1, 700, {.forwards = false});
+    chassis.waitUntilDone();
+    intake.move_velocity(12000);
+    pros::delay(800);
+
+    // Move forward and turn to mogo
+    chassis.moveToPoint(-54.766, -1, 800);
+    chassis.turnToHeading(235, 500);
+
+    // nextState(); // Loading state
+
+    // // Move forward
+    // chassis.moveToPoint(-58.5, 9, 1000);
+
+    // // Load preload
+    // intake.move_voltage(12000); 
+    // pros::delay(1500);
+    // intake.move_relative(-250, -127);
+    // intake.move_voltage(0);
+
+    // // Score alliance stake
+    // lbTaskEnabled = false;
+    // lb.move_relative(1700, 127);
+    // pros::delay(1500);
     
     // Move to mogo
     chassis.moveToPoint(-22.734, 24.017, 2000, {.forwards = false, .maxSpeed = 90});
@@ -568,11 +648,11 @@ void R_N_halfSAWP(){
     chassis.waitUntilDone();
     retractMogo();
     
-    lbTaskEnabled = true;
+    // lbTaskEnabled = true;
 
-    nextState(); // Ready state
-    nextState(); // Scored state
-    nextState(); // Resting state
+    // nextState(); // Ready state
+    // nextState(); // Scored state
+    // nextState(); // Resting state
 
     pros::delay(500);
 
@@ -581,9 +661,9 @@ void R_N_halfSAWP(){
     intake.move_voltage(12000);
 
     // Move to and intake 1st & 2nd rings
-    chassis.moveToPoint(-7.5, 38.724, 1500, {.maxSpeed = 80, .earlyExitRange = 1});
+    chassis.moveToPoint(-8, 38.724, 1500, {.maxSpeed = 80, .earlyExitRange = 1});
     chassis.turnToHeading(0, 500);
-    chassis.moveToPoint(-7, 50.5, 1000, {.maxSpeed = 80});
+    chassis.moveToPoint(-8, 50.5, 1000, {.maxSpeed = 80});
     chassis.waitUntilDone();
     pros::delay(200);
 
@@ -597,7 +677,30 @@ void R_N_halfSAWP(){
 
     // Turn and move to ladder
     chassis.turnToHeading(180, 500);
-    chassis.moveToPoint(-25.14, 8, 2000, {.maxSpeed = 100});
+    chassis.moveToPoint(-25.14, 7, 2000, {.maxSpeed = 100});
     chassis.waitUntilDone();
     intake.move_velocity(0);
+}
+
+void emergency(){
+
+    chassis.setPose(-62.577, -23.082, 270);
+    chassis.moveToPoint(-21.955, -23.082, 1500, {.forwards = false, .maxSpeed = 80});
+    chassis.waitUntilDone();
+
+    retractMogo();
+
+    pros::delay(500);
+    intake.move_velocity(12000);
+
+    chassis.turnToHeading(185, 600);
+    chassis.moveToPoint(-23.73, -47.704, 1500);
+    pros::delay(600);
+
+    chassis.turnToHeading(0, 600);
+
+    chassis.moveToPoint(-24.595, -7.414, 2000);
+    pros::delay(1000);
+    intake.move_velocity(0);
+
 }
