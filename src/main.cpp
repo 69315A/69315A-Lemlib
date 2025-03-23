@@ -1,9 +1,11 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
+#include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "autons.hpp"
+#include "pros/motors.h"
 
 pros::MotorGroup leftMotors{{-4, 2, -3}, pros::MotorGearset::blue};
 pros::MotorGroup rightMotors{{12, -11, 13}, pros::MotorGearset::blue};
@@ -17,6 +19,7 @@ pros::adi::Pneumatics mogoL('A', true);
 pros::adi::Pneumatics mogoR('B', true);
 pros::adi::Pneumatics doinkerL('C', false);
 pros::adi::Pneumatics doinkerR('D', false);
+pros::adi::Pneumatics hang('E', false);
 
 // Sensor constructors
 pros::Imu imu(1);
@@ -38,6 +41,7 @@ void retractMogo(){
     mogoR.retract();
 }
 
+// ----------- L A D Y B R O W N ----------- //
 // Ladybrown states arrays
 int autonStates[4] = {150, 12000, 25000, 50000};      // Remember: centidegrees; 150, 12000, 50000
 int driverStates[3] = {150, 12000, 50000};
@@ -59,10 +63,70 @@ void nextState() {
 
 // Set up Ladybrown PID & controls velocity 
 void liftControl() {
-    double kp = 0.5;
+    double kp = 0.7;
     lb.move(kp * (target - rSensor.get_position())/100.0);
     lb.set_brake_mode((pros::E_MOTOR_BRAKE_HOLD));
 }
+
+// ----------- C O L O R S O R T -----------//
+// Color Sort Task Variables
+int targetHue = 220;
+const int HUE_TOLERANCE = 10;
+bool sorterEnabled = false;
+
+void colorSortTask(void* param) {
+    while(true){
+        if(sorterEnabled){
+          oSensor.set_led_pwm(100);
+          int currHue = oSensor.get_hue();
+          controller.set_text(2, 0, "Color Sort: On ");
+    
+          if(abs(currHue - targetHue) <= HUE_TOLERANCE){
+            intake.move_voltage(12000);
+            pros::delay(75);
+            intake.move_voltage(0);
+            pros::delay(600);
+            intake.move_voltage(12000);
+          }
+    
+        } else {
+          controller.set_text(2, 0, "Color Sort: Off");
+        }
+        pros::delay(20);
+      }
+}
+
+// // Color Sort Task Function
+// void colorSortTask(void* param){
+//   while(true){
+//     if(sorterEnabled){
+//       oSensor.set_led_pwm(100);
+//       int currHue = oSensor.get_hue();
+//       controller.set_text(2, 0, "Color Sort: On ");
+
+//       if(abs(currHue - targetHue) <= HUE_TOLERANCE){
+    
+//         // intake.move(0);
+//         intake.move_relative(800, 127);
+
+//         // Wait until the movement is complete
+//         while (intake.get_actual_velocity() > 5) {
+//             pros::delay(100);
+//         }
+
+//         // Stop the intake
+//         intake.move(0);
+//         pros::delay(500);
+
+//         intake.move_voltage(12000);
+//       }
+
+//     } else {
+//       controller.set_text(2, 0, "Color Sort: Off");
+//     }
+//     pros::delay(20);
+//   }
+// }
 
 // tracking wheels
 pros::Rotation horizontalEnc(5);
@@ -130,6 +194,8 @@ void initialize() {
     pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+    intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    lb.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
     // thread to for brain screen and position logging
     pros::Task screenTask([&]() {
@@ -154,9 +220,15 @@ void initialize() {
             pros::delay(10);
         }
     });
+
+    // Color Sort Task
+    pros::Task colorSortTaskHandler(colorSortTask);
+    
 }
 
-void disabled() {}
+void disabled() {
+
+}
 void competition_initialize() {}
 
 // 1: Skills
@@ -164,15 +236,16 @@ void competition_initialize() {}
 // 2: Red Positive Ring Rush
 // 3: Blue Positive Ring Rush
 
-// 4: Red Negative Ring Rush
-// 5: Blue Negative Ring Rush
-
-// 6: Red Negative Half SAWP
-// 7: Blue Negative Half SAWP
+// 4: Red Negative Half SAWP
+// 5: Blue Negative Half SAWP
 
 void autonomous() {
+
     isAutonMode = true;
-    skills();
+    sorterEnabled = true;
+    hang.extend();
+
+    B_P_ringrush();
 }
 
 void opcontrol() {
@@ -188,6 +261,8 @@ void opcontrol() {
         chassis.arcade(leftY, rightX);
 
         isAutonMode = false;
+        sorterEnabled = false;
+        hang.retract();
 
 		// Intake controls
         if (controller.get_digital(DIGITAL_R1)){
@@ -208,7 +283,7 @@ void opcontrol() {
             lb.move(127);
         } else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
             lbTaskEnabled = false;
-            lb.move(-50);
+            lb.move(-40);
         } else {
             lb.move(0);
         }   
@@ -241,6 +316,8 @@ void opcontrol() {
                 lDoinkerToggle = false;
             }
         }
+
+
 
         controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A);
 
