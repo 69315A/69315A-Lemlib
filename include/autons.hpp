@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pros/adi.hpp"
 #include "pros/motors.hpp"
 #include "lemlib/chassis/chassis.hpp"
 #include "pros/optical.hpp"
@@ -14,6 +15,7 @@ extern pros::adi::Pneumatics mogoL;
 extern pros::adi::Pneumatics mogoR;
 extern pros::adi::Pneumatics doinkerL;
 extern pros::adi::Pneumatics doinkerR;
+extern pros::adi::Pneumatics hang;
 
 // Chassis constructor
 extern lemlib::Chassis chassis;
@@ -24,6 +26,7 @@ extern pros::Rotation rSensor;
 
 // Task flags
 extern bool lbTaskEnabled;
+extern int targetHue;
 
 // Movement function declarations
 void extendMogo();
@@ -45,3 +48,4 @@ void skills();
 
 // Testing routines
 void turnTest();
+void emergency();
