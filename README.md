@@ -1,6 +1,6 @@
 TERMINAL COMMANDS
-Lemlib commands -- https://github.com/LemLib/LemLib\n
-pros c add-depot LemLib https://raw.githubusercontent.com/LemLib/LemLib/depot/stable.json           # adds LemLib's stable depot\n
+Lemlib commands -- https://github.com/LemLib/LemLib
+pros c add-depot LemLib https://raw.githubusercontent.com/LemLib/LemLib/depot/stable.json           # adds LemLib's stable depot
 pros c apply LemLib                                                                                 # applies latest stable version of LemLib
 
 Robodash command
