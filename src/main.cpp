@@ -5,8 +5,10 @@
 #include "pros/misc.h"
 #include "pros/misc.hpp"
 #include "autons.hpp"
+#include "pros/motor_group.hpp"
 #include "pros/motors.h"
 
+// Chassis constructors
 pros::MotorGroup leftMotors{{-4, 2, -3}, pros::MotorGearset::blue};
 pros::MotorGroup rightMotors{{12, -11, 13}, pros::MotorGearset::blue};
 
@@ -26,8 +28,11 @@ pros::Imu imu(1);
 pros::Rotation rSensor(19);
 pros::Optical oSensor(14);
 
-// controller constructor
+// Controller constructor
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
+
+// Robodash brain screen constructor
+rd::Console brain;
 
 // Extend mogo function
 void extendMogo(){
@@ -128,6 +133,12 @@ void colorSortTask(void* param) {
 //   }
 // }
 
+rd::Selector selector({
+    {"SKills", skills},
+    {"Simple auton", R_P_ringrush},
+    {"Good auton", B_P_ringrush},
+});
+
 // tracking wheels
 pros::Rotation horizontalEnc(5);
 pros::Rotation verticalEnc(6);
@@ -191,7 +202,6 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 lemlib::Chassis chassis(drivetrain, lateral_controller, angular_controller, sensors, &throttleCurve, &steerCurve);
 
 void initialize() {
-    pros::lcd::initialize(); // initialize brain screen
     chassis.calibrate(); // calibrate sensors
 	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
     intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -201,9 +211,9 @@ void initialize() {
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            brain.printf("X: %f", chassis.getPose().x); // x
+            brain.printf("\nY: %f", chassis.getPose().y); // y
+            brain.printf("\nTheta: %f", chassis.getPose().theta); // heading
             // log position telemetry
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             // delay to save resources
@@ -226,18 +236,8 @@ void initialize() {
     
 }
 
-void disabled() {
-
-}
+void disabled() {}
 void competition_initialize() {}
-
-// 1: Skills
-
-// 2: Red Positive Ring Rush
-// 3: Blue Positive Ring Rush
-
-// 4: Red Negative Half SAWP
-// 5: Blue Negative Half SAWP
 
 void autonomous() {
 
@@ -245,7 +245,7 @@ void autonomous() {
     sorterEnabled = true;
     hang.extend();
 
-    B_P_ringrush();
+    selector.run_auton();
 }
 
 void opcontrol() {
