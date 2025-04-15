@@ -9,24 +9,23 @@
 #include "pros/motors.h"
 
 // Chassis constructors
-pros::MotorGroup leftMotors{{-4, 2, -3}, pros::MotorGearset::blue};
-pros::MotorGroup rightMotors{{12, -11, 13}, pros::MotorGearset::blue};
+pros::MotorGroup leftMotors{{1, 2, -3}, pros::MotorGearset::blue};
+pros::MotorGroup rightMotors{{-13, -12, 11}, pros::MotorGearset::blue};
 
 // Motor constructors
-pros::Motor intake(-7, pros::MotorGearset::blue);
-pros::MotorGroup lb({-9, 8}, pros::MotorGearset::green);
+pros::Motor intake(14, pros::MotorGearset::blue);
+pros::MotorGroup lb({-20, 19}, pros::MotorGearset::green);
 
 // Pneumatic constructors
 pros::adi::Pneumatics mogoL('A', true);
 pros::adi::Pneumatics mogoR('B', true);
 pros::adi::Pneumatics doinkerL('C', false);
 pros::adi::Pneumatics doinkerR('D', false);
-pros::adi::Pneumatics hang('E', false);
 
 // Sensor constructors
-pros::Imu imu(1);
-pros::Rotation rSensor(19);
-pros::Optical oSensor(14);
+pros::Imu imu(17);
+pros::Rotation rSensor(18);
+pros::Optical oSensor(5);
 
 // Controller constructor
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -38,8 +37,8 @@ rd::Console brain;
 void extendMogo(){
     mogoL.extend();
     mogoR.extend();
-}
-  
+}  
+
 // Retract mogo function
 void retractMogo(){
     mogoL.retract();
@@ -49,7 +48,7 @@ void retractMogo(){
 // ----------- L A D Y B R O W N ----------- //
 // Ladybrown states arrays
 int autonStates[4] = {150, 12000, 25000, 50000};      // Remember: centidegrees; 150, 12000, 50000
-int driverStates[3] = {150, 12000, 50000};
+int driverStates[3] = {150, 11000, 50000};
 
 // Ladybrown variables
 int currState = 0;
@@ -68,7 +67,7 @@ void nextState() {
 
 // Set up Ladybrown PID & controls velocity 
 void liftControl() {
-    double kp = 0.7;
+    double kp = 0.5;
     lb.move(kp * (target - rSensor.get_position())/100.0);
     lb.set_brake_mode((pros::E_MOTOR_BRAKE_HOLD));
 }
@@ -101,47 +100,15 @@ void colorSortTask(void* param) {
       }
 }
 
-// // Color Sort Task Function
-// void colorSortTask(void* param){
-//   while(true){
-//     if(sorterEnabled){
-//       oSensor.set_led_pwm(100);
-//       int currHue = oSensor.get_hue();
-//       controller.set_text(2, 0, "Color Sort: On ");
-
-//       if(abs(currHue - targetHue) <= HUE_TOLERANCE){
-    
-//         // intake.move(0);
-//         intake.move_relative(800, 127);
-
-//         // Wait until the movement is complete
-//         while (intake.get_actual_velocity() > 5) {
-//             pros::delay(100);
-//         }
-
-//         // Stop the intake
-//         intake.move(0);
-//         pros::delay(500);
-
-//         intake.move_voltage(12000);
-//       }
-
-//     } else {
-//       controller.set_text(2, 0, "Color Sort: Off");
-//     }
-//     pros::delay(20);
-//   }
-// }
-
 rd::Selector selector({
-    {"SKills", skills},
-    {"Simple auton", R_P_ringrush},
-    {"Good auton", B_P_ringrush},
+    {"Skills", skills},
+    {"Red Positive Ring Rush", R_P_ringrush},
+    {"Blue Positive Ring Rush", B_P_ringrush},
 });
 
 // tracking wheels
-pros::Rotation horizontalEnc(5);
-pros::Rotation verticalEnc(6);
+pros::Rotation horizontalEnc(4);
+pros::Rotation verticalEnc(16);
 lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_275, -3.75); 
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, 0.125); //0.125
 
@@ -211,9 +178,9 @@ void initialize() {
     pros::Task screenTask([&]() {
         while (true) {
             // print robot location to the brain screen
-            brain.printf("X: %f", chassis.getPose().x); // x
-            brain.printf("\nY: %f", chassis.getPose().y); // y
-            brain.printf("\nTheta: %f", chassis.getPose().theta); // heading
+            // brain.printf("X: %f", chassis.getPose().x); // x
+            // brain.printf("\nY: %f", chassis.getPose().y); // y
+            // brain.printf("\nTheta: %f", chassis.getPose().theta); // heading
             // log position telemetry
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             // delay to save resources
@@ -316,8 +283,6 @@ void opcontrol() {
                 lDoinkerToggle = false;
             }
         }
-
-
 
         controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A);
 
