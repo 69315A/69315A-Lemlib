@@ -1,3 +1,4 @@
+#include "robodash/api.h"
 /**
  * \file main.h
  *
